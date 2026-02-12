@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Instagram,
   Youtube,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 const Footer = () => {
+  const navigate = useNavigate();
   return (
     <footer className="w-full bg-[#0a0e27] relative z-10 mt-auto block font-sans">
       {/* Orange accent line */}
@@ -48,9 +49,10 @@ const Footer = () => {
               Still Have Questions?
             </h2>
             <motion.button
+              onClick={() => navigate('/contact')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold flex items-center gap-2 mx-auto md:mx-0 transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold flex items-center gap-2 mx-auto md:mx-0 transition-colors cursor-pointer"
             >
               <Phone className="w-5 h-5" />
               Request a Call from Our Expert
