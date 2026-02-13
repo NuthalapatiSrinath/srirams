@@ -24,7 +24,7 @@ const Home = () => {
       <OfflineCentersSection />
 
       {/* <LearningMethodologySection />
-      <FacultySection />
+      <FacultySectdion />
       <SuccessRateSection />
       <StudyResourcesSection />
       <InfrastructureSection />
