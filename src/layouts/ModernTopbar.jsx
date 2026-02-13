@@ -97,13 +97,13 @@ const ModernTopbar = () => {
       animate={{ y: 0, opacity: 1 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/95 backdrop-blur-lg shadow-lg"
+          ? "bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 backdrop-blur-lg shadow-2xl"
           : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
       }`}
     >
       {/* Top Announcement Bar */}
       <div
-        className={`${scrolled ? "hidden" : "block"} bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-gray-900 overflow-hidden py-2`}
+        className={`${scrolled ? "hidden" : "block"} bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-gray-900 overflow-hidden py-0.5`}
       >
         <motion.div
           className="flex gap-16"
@@ -130,13 +130,13 @@ const ModernTopbar = () => {
 
       {/* Main Navigation */}
       <div className={`${scrolled ? "text-gray-800" : "text-white"}`}>
-        <div className="container mx-auto px-20 py-3 md:py-0">
-          <div className="flex items-center justify-between py-0 md:py-0">
+        <div className="container mx-auto px-4 lg:px-20 py-1">
+          <div className="flex items-center justify-between py-0">
             {/* Logo - Very Large */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex-shrink-0 cursor-pointer mr-9"
+              className="flex-shrink-0 cursor-pointer mr-2 lg:mr-9 order-first lg:order-none"
               onClick={() => navigate("/")}
               whileHover={{ scale: 1.05 }}
             >
@@ -144,7 +144,7 @@ const ModernTopbar = () => {
                 <img
                   src="/SriramIAS.png"
                   alt="Sriram's IAS"
-                  className="h-12 md:h-24 w-auto object-contain drop-shadow-lg"
+                  className="h-12 md:h-16 w-auto object-contain drop-shadow-lg"
                 />
               </div>
             </motion.div>
@@ -166,9 +166,9 @@ const ModernTopbar = () => {
                       transition={{ delay: 0.1 + idx * 0.05 }}
                     >
                       <motion.button
-                        className={`flex items-center gap-1 px-2.5 py-2 rounded-lg font-bold text-xs whitespace-nowrap transition-all ${
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs whitespace-nowrap transition-all text-white ${
                           scrolled
-                            ? "hover:bg-blue-50 hover:text-blue-600"
+                            ? "hover:bg-white/20 backdrop-blur-sm"
                             : "hover:bg-white/20 backdrop-blur-sm"
                         }`}
                         whileHover={{ scale: 1.05 }}
@@ -245,9 +245,9 @@ const ModernTopbar = () => {
                     <motion.button
                       key={idx}
                       onClick={() => navigate(action.path)}
-                      className={`flex items-center gap-1 px-2.5 py-2 rounded-lg font-semibold text-xs whitespace-nowrap transition-all ${
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold text-xs whitespace-nowrap transition-all ${
                         scrolled
-                          ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg"
+                          ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
                           : "bg-white/20 backdrop-blur-sm hover:bg-white/30"
                       }`}
                       whileHover={{ scale: 1.05, y: -2 }}
@@ -266,9 +266,9 @@ const ModernTopbar = () => {
               {/* Student Login */}
               <motion.button
                 onClick={() => navigate("/student-login")}
-                className={`flex items-center gap-1 px-4 py-2 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
                   scrolled
-                    ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-xl"
+                    ? "bg-gradient-to-r from-green-400 to-emerald-500 text-gray-900 hover:shadow-xl"
                     : "bg-white text-blue-600 hover:bg-blue-50"
                 }`}
                 whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
@@ -285,7 +285,7 @@ const ModernTopbar = () => {
 
             {/* Mobile Menu Button */}
             <motion.button
-              className={`lg:hidden p-2 rounded-lg ${scrolled ? "text-gray-800" : "text-white"}`}
+              className="lg:hidden p-2 rounded-lg text-white order-last"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               whileTap={{ scale: 0.95 }}
             >
@@ -300,9 +300,9 @@ const ModernTopbar = () => {
 
         {/* Contact Bar - Desktop Only */}
         <div
-          className={`hidden lg:block border-t ${scrolled ? "border-gray-200" : "border-white/20"}`}
+          className={`hidden lg:block border-t ${scrolled ? "border-white/20" : "border-white/20"}`}
         >
-          <div className="container mx-auto px-4 py-2">
+          <div className="container mx-auto px-4 py-1">
             <div className="flex items-center justify-between text-sm">
               <motion.div
                 className="flex items-center gap-6"
@@ -313,18 +313,18 @@ const ModernTopbar = () => {
                   href="tel:9811489560"
                   className={`flex items-center gap-2 font-semibold transition-colors ${
                     scrolled
-                      ? "text-gray-700 hover:text-blue-600"
+                      ? "text-white hover:text-blue-200"
                       : "hover:text-blue-200"
                   }`}
                 >
                   <Phone className="w-4 h-4" />
-                  <span>9811489560 / 011-42437002</span>
+                  <span>8686818384/9963917712</span>
                 </a>
                 <a
                   href="mailto:enquiry@sriramsias.com"
                   className={`flex items-center gap-2 font-semibold transition-colors ${
                     scrolled
-                      ? "text-gray-700 hover:text-blue-600"
+                      ? "text-white hover:text-blue-200"
                       : "hover:text-blue-200"
                   }`}
                 >
@@ -335,7 +335,7 @@ const ModernTopbar = () => {
 
               <motion.button
                 onClick={() => navigate("/contact")}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-6 py-1.5 rounded-full font-bold hover:shadow-lg transition-all"
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-6 py-0.5 rounded-full font-bold hover:shadow-lg transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, x: 20 }}

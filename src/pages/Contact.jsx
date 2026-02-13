@@ -104,6 +104,20 @@ const Contact = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Select Center
+                  </label>
+                  <select
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
+                  >
+                    <option value="all">All Centers</option>
+                    <option value="delhi">Delhi Center - Connaught Place</option>
+                    <option value="mumbai">Mumbai Center - Andheri West</option>
+                    <option value="bangalore">Bangalore Center - Koramangala</option>
+                    <option value="hyderabad">Hyderabad Center - Himayat Nagar</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Subject
                   </label>
                   <input
