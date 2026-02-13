@@ -1,7 +1,30 @@
-import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Send,
+  Sparkles,
+} from "lucide-react";
+import { useState } from "react";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    center: "",
+    subject: "",
+    message: "",
+  });
+
+  const [focusedField, setFocusedField] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const centers = [
     {
       city: "Delhi (Head Office)",
@@ -64,91 +87,212 @@ const Contact = () => {
           <div className="grid md:grid-cols-2 gap-12">
             {/* Contact Form */}
             <motion.div
-              className="bg-white rounded-2xl shadow-xl p-8"
+              className="bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden border border-gray-100"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">
-                Send us a Message
-              </h2>
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="Enter your name"
-                  />
+              {/* Subtle Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/30 via-cyan-50/20 to-blue-50/30 pointer-events-none" />
+
+              {/* Floating Sparkles */}
+              <motion.div
+                className="absolute top-8 right-8"
+                animate={{
+                  y: [0, -15, 0],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Sparkles className="w-5 h-5 text-teal-300 opacity-50" />
+              </motion.div>
+
+              <div className="relative z-10">
+                <h2 className="text-3xl font-bold text-gray-800 mb-1">
+                  Send us a Message
+                </h2>
+                <div className="flex items-center gap-2 mb-8">
+                  <span className="w-12 h-1 bg-gradient-to-r from-teal-500 to-cyan-500 rounded"></span>
+                  <p className="text-sm text-gray-600">We'll get back to you within 24 hours</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="Enter your email"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Select Center
-                  </label>
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white">
-                    <option value="all">All Centers</option>
-                    <option value="delhi">
-                      Delhi Center - Connaught Place
-                    </option>
-                    <option value="mumbai">Mumbai Center - Andheri West</option>
-                    <option value="bangalore">
-                      Bangalore Center - Koramangala
-                    </option>
-                    <option value="hyderabad">
-                      Hyderabad Center - Himayat Nagar
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="What's this about?"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    rows="4"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="Tell us more..."
-                  ></textarea>
-                </div>
-                <motion.button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white py-3 rounded-lg font-semibold shadow-md"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Send Message
-                </motion.button>
-              </form>
+
+                <form className="space-y-5">
+                  {/* Full Name Input */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField("name")}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 bg-white text-gray-800 placeholder:text-gray-400 hover:border-gray-400"
+                      placeholder="Enter your name"
+                    />
+                  </motion.div>
+
+                  {/* Email Input */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField("email")}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 bg-white text-gray-800 placeholder:text-gray-400 hover:border-gray-400"
+                      placeholder="Enter your email"
+                    />
+                  </motion.div>
+
+                  {/* Phone Input */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField("phone")}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 bg-white text-gray-800 placeholder:text-gray-400 hover:border-gray-400"
+                      placeholder="Enter your phone number"
+                    />
+                  </motion.div>
+
+                  {/* Select Center Dropdown */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Select Center
+                    </label>
+                    <div className="relative group">
+                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <select
+                        name="center"
+                        value={formData.center}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField("center")}
+                        onBlur={() => setFocusedField(null)}
+                        className="w-full pl-10 pr-10 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 bg-white text-gray-800 cursor-pointer appearance-none hover:border-gray-400"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: 'right 0.75rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1.5em 1.5em',
+                        }}
+                      >
+                        <option value="" disabled>Choose your preferred center</option>
+                        <option value="all">All Centers</option>
+                        <option value="delhi">Delhi Center - Connaught Place</option>
+                        <option value="mumbai">Mumbai Center - Andheri West</option>
+                        <option value="bangalore">Bangalore Center - Koramangala</option>
+                        <option value="hyderabad">Hyderabad Center - Himayat Nagar</option>
+                      </select>
+                    </div>
+                  </motion.div>
+
+                  {/* Subject Input */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Subject
+                    </label>
+                    <input
+                      type="text"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField("subject")}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 bg-white text-gray-800 placeholder:text-gray-400 hover:border-gray-400"
+                      placeholder="What's this about?"
+                    />
+                  </motion.div>
+
+                  {/* Message Textarea */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Message
+                    </label>
+                    <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField("message")}
+                      onBlur={() => setFocusedField(null)}
+                      rows="4"
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 bg-white resize-none text-gray-800 placeholder:text-gray-400 hover:border-gray-400"
+                      placeholder="Tell us more..."
+                    />
+                  </motion.div>
+
+                  {/* Submit Button */}
+                  <motion.button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3.5 rounded-lg font-bold shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <Send className="w-5 h-5" />
+                    Send Message
+                  </motion.button>
+
+                  {/* Trust Badges */}
+                  <motion.div
+                    className="flex items-center justify-center gap-6 pt-4 border-t border-gray-200"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                  >
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 text-sm font-bold">✓</span>
+                      </div>
+                      <span className="font-medium">Secure & Private</span>
+                    </div>
+                    <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 text-sm font-bold">⚡</span>
+                      </div>
+                      <span className="font-medium">Quick Response</span>
+                    </div>
+                  </motion.div>
+                </form>
+              </div>
             </motion.div>
 
             {/* Contact Info */}

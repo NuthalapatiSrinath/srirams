@@ -12,6 +12,7 @@ import AlumniNetworkSection from "../components/home/AlumniNetworkSection";
 import AchievementsSection from "../components/home/AchievementsSection";
 import FAQSection from "../components/home/FAQSection";
 import CTASection from "../components/home/CTASection";
+import OfflineCentersSection from "../components/home/OfflineCentersSection";
 
 const Home = () => {
   return (
@@ -20,6 +21,7 @@ const Home = () => {
       <StatsSection />
       <WhyChooseSection />
       <CourseProgramsSection />
+      <OfflineCentersSection />
 
       {/* <LearningMethodologySection />
       <FacultySection />
