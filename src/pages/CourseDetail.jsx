@@ -761,7 +761,7 @@ const CourseDetail = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5" />
-                    <span className="font-semibold">9811489560</span>
+                    <span className="font-semibold">8686818384</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5" />

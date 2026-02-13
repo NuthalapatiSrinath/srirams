@@ -147,7 +147,7 @@ const Topbar = () => {
         <div className="hidden lg:block bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white py-3 shadow-lg">
           <div className="container mx-auto px-6 flex items-center justify-between">
             <motion.a
-              href="tel:9811489560"
+              href="tel:8686818384"
               className="flex items-center gap-3 hover:text-yellow-300 transition-all duration-300 group"
               whileHover={{ scale: 1.05, x: 5 }}
             >
@@ -155,7 +155,7 @@ const Topbar = () => {
                 <Phone className="w-5 h-5 text-purple-600" />
               </div>
               <span className="font-bold text-base">
-                9811489560 / 011-42437002
+                8686818384/ 9963917712
               </span>
             </motion.a>
 

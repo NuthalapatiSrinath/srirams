@@ -6,7 +6,7 @@ const Contact = () => {
     {
       city: "Delhi (Head Office)",
       address: "15A/40, WEA, Karol Bagh, New Delhi - 110005",
-      phone: "9811489560, 011-42437002",
+      phone: "8686818384, 9963917712",
       email: "delhi@sriramsias.com",
     },
     {
@@ -106,14 +106,18 @@ const Contact = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Select Center
                   </label>
-                  <select
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
-                  >
+                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white">
                     <option value="all">All Centers</option>
-                    <option value="delhi">Delhi Center - Connaught Place</option>
+                    <option value="delhi">
+                      Delhi Center - Connaught Place
+                    </option>
                     <option value="mumbai">Mumbai Center - Andheri West</option>
-                    <option value="bangalore">Bangalore Center - Koramangala</option>
-                    <option value="hyderabad">Hyderabad Center - Himayat Nagar</option>
+                    <option value="bangalore">
+                      Bangalore Center - Koramangala
+                    </option>
+                    <option value="hyderabad">
+                      Hyderabad Center - Himayat Nagar
+                    </option>
                   </select>
                 </div>
                 <div>
@@ -166,8 +170,8 @@ const Contact = () => {
                       <h3 className="font-semibold text-gray-800 mb-1">
                         Phone
                       </h3>
-                      <p className="text-gray-600">9811489560</p>
-                      <p className="text-gray-600">011-42437002</p>
+                      <p className="text-gray-600">8686818384</p>
+                      <p className="text-gray-600">9963917712</p>
                     </div>
                   </div>
 
