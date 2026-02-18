@@ -15,8 +15,20 @@ import {
   MessageCircle,
   LogIn,
   Sparkles,
+  User,
+  LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../store/slices/authSlice";
+import toast from "react-hot-toast";
+import {
+  trackNavigation,
+  trackDropdown,
+  trackButtonClick,
+  trackSearch,
+  flushActivities,
+} from "../utils/activityTracker";
 
 const ModernTopbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,6 +36,16 @@ const ModernTopbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    trackButtonClick("logout_button", "Logout", { source: "topbar" });
+    await flushActivities(); // Ensure tracking is sent before logout
+    dispatch(logout());
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -137,7 +159,10 @@ const ModernTopbar = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex-shrink-0 cursor-pointer mr-2 lg:mr-9 order-first lg:order-none"
-              onClick={() => navigate("/")}
+              onClick={() => {
+                trackNavigation("Logo", "topbar", "/");
+                navigate("/");
+              }}
               whileHover={{ scale: 1.05 }}
             >
               <div className="flex items-center gap-3">
@@ -159,8 +184,14 @@ const ModernTopbar = () => {
                     <motion.div
                       key={idx}
                       className="relative"
-                      onHoverStart={() => setActiveDropdown(idx)}
-                      onHoverEnd={() => setActiveDropdown(null)}
+                      onHoverStart={() => {
+                        setActiveDropdown(idx);
+                        trackDropdown(item.label, "open");
+                      }}
+                      onHoverEnd={() => {
+                        setActiveDropdown(null);
+                        trackDropdown(item.label, "close");
+                      }}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 + idx * 0.05 }}
@@ -211,6 +242,16 @@ const ModernTopbar = () => {
                                 <motion.button
                                   key={subIdx}
                                   onClick={() => {
+                                    trackDropdown(
+                                      item.label,
+                                      "select",
+                                      subItem.name,
+                                    );
+                                    trackNavigation(
+                                      subItem.name,
+                                      "dropdown",
+                                      subItem.path,
+                                    );
                                     navigate(subItem.path);
                                     setActiveDropdown(null);
                                   }}
@@ -244,7 +285,18 @@ const ModernTopbar = () => {
                   return (
                     <motion.button
                       key={idx}
-                      onClick={() => navigate(action.path)}
+                      onClick={() => {
+                        trackNavigation(
+                          action.label,
+                          "quick_action",
+                          action.path,
+                        );
+                        trackButtonClick(
+                          `quick_action_${action.label}`,
+                          action.label,
+                        );
+                        navigate(action.path);
+                      }}
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold text-xs whitespace-nowrap transition-all ${
                         scrolled
                           ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
@@ -263,30 +315,83 @@ const ModernTopbar = () => {
                 })}
               </div>
 
-              {/* Student Login */}
-              <motion.button
-                onClick={() => navigate("/student-login")}
-                className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
-                  scrolled
-                    ? "bg-gradient-to-r from-green-400 to-emerald-500 text-gray-900 hover:shadow-xl"
-                    : "bg-white text-blue-600 hover:bg-blue-50"
-                }`}
-                whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Student Login</span>
-                <Sparkles className="w-4 h-4" />
-              </motion.button>
+              {/* Student Login / Profile */}
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    onClick={() => {
+                      trackNavigation("Profile", "topbar", "/profile");
+                      trackButtonClick("profile_button", "Profile");
+                      navigate("/profile");
+                    }}
+                    className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
+                      scrolled
+                        ? "bg-gradient-to-r from-blue-400 to-indigo-500 text-white hover:shadow-xl"
+                        : "bg-white text-blue-600 hover:bg-blue-50"
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{user?.name || "Profile"}</span>
+                  </motion.button>
+                  <motion.button
+                    onClick={handleLogout}
+                    className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
+                      scrolled
+                        ? "bg-gradient-to-r from-red-400 to-pink-500 text-white hover:shadow-xl"
+                        : "bg-white text-red-600 hover:bg-red-50"
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </motion.button>
+                </div>
+              ) : (
+                <motion.button
+                  onClick={() => {
+                    trackNavigation(
+                      "Student Login",
+                      "topbar",
+                      "/student-login",
+                    );
+                    trackButtonClick("student_login_button", "Student Login");
+                    navigate("/student-login");
+                  }}
+                  className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
+                    scrolled
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500 text-gray-900 hover:shadow-xl"
+                      : "bg-white text-blue-600 hover:bg-blue-50"
+                  }`}
+                  whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Student Login</span>
+                  <Sparkles className="w-4 h-4" />
+                </motion.button>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
             <motion.button
               className="lg:hidden p-2 rounded-lg text-white order-last"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => {
+                const newState = !isMobileMenuOpen;
+                setIsMobileMenuOpen(newState);
+                trackButtonClick(
+                  "mobile_menu_toggle",
+                  newState ? "Open" : "Close",
+                  {
+                    menuState: newState ? "opened" : "closed",
+                  },
+                );
+              }}
               whileTap={{ scale: 0.95 }}
             >
               {isMobileMenuOpen ? (
@@ -420,17 +525,44 @@ const ModernTopbar = () => {
               })}
 
               <div className="mt-4 space-y-2">
-                <motion.button
-                  onClick={() => {
-                    navigate("/student-login");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <LogIn className="w-5 h-5" />
-                  Student Login
-                </motion.button>
+                {isAuthenticated ? (
+                  <>
+                    <motion.button
+                      onClick={() => {
+                        navigate("/profile");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <User className="w-5 h-5" />
+                      {user?.name || "Profile"}
+                    </motion.button>
+                    <motion.button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Logout
+                    </motion.button>
+                  </>
+                ) : (
+                  <motion.button
+                    onClick={() => {
+                      navigate("/student-login");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <LogIn className="w-5 h-5" />
+                    Student Login
+                  </motion.button>
+                )}
                 <motion.button
                   onClick={() => {
                     navigate("/contact");

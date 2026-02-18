@@ -1,7 +1,52 @@
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { UserPlus, Mail, Phone, MapPin } from "lucide-react";
+import { UserPlus, Eye, EyeOff, Loader2 } from "lucide-react";
+import { registerUser, clearError } from "../store/slices/authSlice";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isLoading, isAuthenticated, error } = useSelector(
+    (state) => state.auth,
+  );
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+    dispatch(clearError());
+  }, [isAuthenticated, navigate, dispatch]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    dispatch(registerUser(formData));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
@@ -43,179 +88,133 @@ const SignUp = () => {
               <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
                 Create Your Account
               </h2>
-              <form className="space-y-6">
-                {/* Personal Information */}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Full Name */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Personal Information
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        First Name *
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter first name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Last Name *
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter last name"
-                        required
-                      />
-                    </div>
-                  </div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your full name"
+                    required
+                  />
                 </div>
 
-                {/* Contact Information */}
+                {/* Email Address */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Contact Information
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter email address"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter phone number"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* UPSC Details */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    UPSC Preparation Details
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Current Stage
-                      </label>
-                      <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <option>Select your current stage</option>
-                        <option>Beginner - Just Starting</option>
-                        <option>Preparing for Prelims</option>
-                        <option>Preparing for Mains</option>
-                        <option>Preparing for Interview</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Interested Course
-                      </label>
-                      <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <option>Select course of interest</option>
-                        <option>Foundation Course</option>
-                        <option>Prelims Course</option>
-                        <option>Mains Course</option>
-                        <option>Optional Course</option>
-                        <option>Test Series</option>
-                        <option>Mentorship Program</option>
-                      </select>
-                    </div>
-                  </div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter email address"
+                    required
+                  />
                 </div>
 
                 {/* Password */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Account Security
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Password *
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Create password"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Confirm Password *
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Confirm password"
-                        required
-                      />
-                    </div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-12"
+                      placeholder="Create password (min 8 chars)"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Must be at least 8 characters with uppercase, lowercase,
+                    number, and special character
+                  </p>
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Confirm Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-12"
+                      placeholder="Confirm your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                {/* Terms and Conditions */}
-                <div className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 mt-1 text-purple-600 rounded"
-                    required
-                  />
-                  <label className="text-sm text-gray-600">
-                    I agree to the{" "}
-                    <a
-                      href="#"
-                      className="text-purple-600 hover:text-purple-700 font-semibold"
-                    >
-                      Terms and Conditions
-                    </a>{" "}
-                    and{" "}
-                    <a
-                      href="#"
-                      className="text-purple-600 hover:text-purple-700 font-semibold"
-                    >
-                      Privacy Policy
-                    </a>
-                  </label>
-                </div>
+                {/* Error Display */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                    {error}
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-lg font-semibold shadow-md text-lg"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-lg font-semibold shadow-md text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
                 >
-                  Create Account
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Creating Account...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </motion.button>
 
                 <div className="text-center pt-4">
                   <p className="text-gray-600">
                     Already have an account?{" "}
-                    <a
-                      href="#"
+                    <Link
+                      to="/login"
                       className="text-purple-600 hover:text-purple-700 font-semibold"
                     >
                       Login Here
-                    </a>
+                    </Link>
                   </p>
                 </div>
               </form>

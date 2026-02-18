@@ -2,10 +2,11 @@ import axios from "axios";
 
 // Create axios instance pointing to your backend
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // Make sure your backend runs on this port
+  baseURL: "https://demosr.vercel.app/api", // Backend running on port 3000
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Enable cookies for refresh token
 });
 
 // Request Interceptor: Attach Token
@@ -17,7 +18,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response Interceptor: Handle 401 (Token Expired)
@@ -31,7 +32,7 @@ api.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

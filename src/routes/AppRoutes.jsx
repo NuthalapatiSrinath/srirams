@@ -32,14 +32,22 @@ import UpcomingBatches from "../pages/UpcomingBatches";
 import Blog from "../pages/Blog";
 import Portal from "../pages/Portal";
 import Contact from "../pages/Contact";
+
+// Auth Pages
 import SignUp from "../pages/SignUp";
-import StudentLogin from "../pages/StudentLogin";
+import Register from "../pages/auth/Register";
+import NewLogin from "../pages/auth/NewLogin";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
+import VerifyEmail from "../pages/auth/VerifyEmail";
+import Profile from "../pages/auth/Profile";
+import Settings from "../pages/auth/Settings";
 
 // --- 1. DEFINE ROUTES & TITLES HERE ---
 export const appRoutes = [
   // Main Pages
   { path: "/", element: <Home />, title: "Sriram's IAS - Home" },
-  { path: "/student-login", element: <StudentLogin />, title: "Student Login" },
+  { path: "/student-login", element: <NewLogin />, title: "Student Login" },
   {
     path: "/courses/:slug",
     element: <CourseDetail />,
@@ -100,7 +108,28 @@ export const appRoutes = [
   { path: "/blog", element: <Blog />, title: "Blog" },
   { path: "/portal", element: <Portal />, title: "Student Portal" },
   { path: "/contact", element: <Contact />, title: "Contact Us" },
+
+  // Auth Pages
   { path: "/signup", element: <SignUp />, title: "Sign Up" },
+  { path: "/register", element: <Register />, title: "Register" },
+  { path: "/login", element: <NewLogin />, title: "Login" },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+    title: "Forgot Password",
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+    title: "Reset Password",
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmail />,
+    title: "Verify Email",
+  },
+  { path: "/profile", element: <Profile />, title: "My Profile" },
+  { path: "/settings", element: <Settings />, title: "Account Settings" },
 
   // Dashboard (Admin)
   { path: "/dashboard", element: <Dashboard />, title: "Dashboard Overview" },
