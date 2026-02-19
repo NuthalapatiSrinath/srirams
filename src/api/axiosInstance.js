@@ -35,8 +35,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Don't redirect if this is a login request failing (wrong credentials)
-      const isLoginRequest = error.config?.url?.includes('/auth/login');
-      
+      const isLoginRequest = error.config?.url?.includes("/auth/login");
+
       if (!isLoginRequest) {
         // Token expired or invalid - clear storage and redirect to login
         localStorage.removeItem("token");

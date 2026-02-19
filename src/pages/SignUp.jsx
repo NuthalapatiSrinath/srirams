@@ -17,6 +17,7 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -47,7 +48,7 @@ const SignUp = () => {
     const result = await dispatch(registerUser(formData));
     if (result.meta.requestStatus === "fulfilled") {
       // Redirect to login after successful registration
-      setTimeout(() => navigate("/login"), 1500);
+      setTimeout(() => navigate("/login"), 3000);
     }
   };
 
@@ -123,6 +124,26 @@ const SignUp = () => {
                     placeholder="Enter email address"
                     required
                   />
+                </div>
+
+                {/* Mobile Number */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Mobile Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter mobile number"
+                    pattern="[0-9]{10}"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter 10-digit mobile number
+                  </p>
                 </div>
 
                 {/* Password */}

@@ -352,11 +352,7 @@ const ModernTopbar = () => {
               ) : (
                 <motion.button
                   onClick={() => {
-                    trackNavigation(
-                      "Student Login",
-                      "topbar",
-                      "/login",
-                    );
+                    trackNavigation("Student Login", "topbar", "/login");
                     trackButtonClick("student_login_button", "Student Login");
                     navigate("/login");
                   }}
