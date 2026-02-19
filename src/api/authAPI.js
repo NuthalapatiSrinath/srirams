@@ -17,7 +17,9 @@ export const authAPI = {
     if (response.data.success && response.data.data.accessToken) {
       // Store token and user in localStorage
       localStorage.setItem("token", response.data.data.accessToken);
-      localStorage.setItem("user", JSON.stringify(response.data.data.user));
+      if (response.data.data.user) {
+        localStorage.setItem("user", JSON.stringify(response.data.data.user));
+      }
     }
     return response.data;
   },

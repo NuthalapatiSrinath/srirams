@@ -96,9 +96,17 @@ export const getProfile = createAsyncThunk(
 );
 
 // --- Initial State ---
-const user = localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("user"))
-  : null;
+const getUserFromStorage = () => {
+  try {
+    const stored = localStorage.getItem("user");
+    if (!stored || stored === "undefined" || stored === "null") return null;
+    return JSON.parse(stored);
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
+};
+const user = getUserFromStorage();
 const token = localStorage.getItem("token");
 
 const initialState = {
@@ -141,7 +149,9 @@ const authSlice = createSlice({
         state.user = action.payload.data.user;
         state.token = action.payload.data.accessToken;
         // Store in localStorage
-        localStorage.setItem("user", JSON.stringify(action.payload.data.user));
+        if (action.payload.data.user) {
+          localStorage.setItem("user", JSON.stringify(action.payload.data.user));
+        }
         localStorage.setItem("token", action.payload.data.accessToken);
         // Track successful login
         trackLogin(action.payload.data.user.email);
@@ -227,7 +237,9 @@ const authSlice = createSlice({
         state.isLoading = false;
         // Extract from response: response.data.data (not .user)
         state.user = action.payload.data;
-        localStorage.setItem("user", JSON.stringify(action.payload.data));
+        if (action.payload.data) {
+          localStorage.setItem("user", JSON.stringify(action.payload.data));
+        }
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.isLoading = false;
