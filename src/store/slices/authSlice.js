@@ -137,12 +137,16 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.token = action.payload.accessToken;
+        // Extract from nested data structure: response.data.data.user
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.accessToken;
+        // Store in localStorage
+        localStorage.setItem("user", JSON.stringify(action.payload.data.user));
+        localStorage.setItem("token", action.payload.data.accessToken);
         // Track successful login
-        trackLogin(action.payload.user.email);
+        trackLogin(action.payload.data.user.email);
         toast.success(
-          `Welcome back, ${action.payload.user.name || action.payload.user.email}`,
+          `Welcome back, ${action.payload.data.user.name || action.payload.data.user.email}`,
         );
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -221,8 +225,9 @@ const authSlice = createSlice({
       })
       .addCase(getProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        localStorage.setItem("user", JSON.stringify(action.payload.user));
+        // Extract from response: response.data.data (not .user)
+        state.user = action.payload.data;
+        localStorage.setItem("user", JSON.stringify(action.payload.data));
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.isLoading = false;

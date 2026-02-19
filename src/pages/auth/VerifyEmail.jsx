@@ -1,51 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import api from '../../api/axiosInstance';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import api from "../../api/axiosInstance";
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState('verifying'); // verifying, success, error
-  const [message, setMessage] = useState('Verifying your email...');
+  const [status, setStatus] = useState("verifying"); // verifying, success, error
+  const [message, setMessage] = useState("Verifying your email...");
 
   useEffect(() => {
     const verifyEmail = async () => {
-      const token = searchParams.get('token');
+      const token = searchParams.get("token");
 
       if (!token) {
-        setStatus('error');
-        setMessage('Invalid verification link. Please check your email or request a new verification email.');
+        setStatus("error");
+        setMessage(
+          "Invalid verification link. Please check your email or request a new verification email.",
+        );
         return;
       }
 
       try {
-        const response = await api.post('/user/auth/verify-email', { token });
+        const response = await api.post("/user/auth/verify-email", { token });
 
         if (response.data.success) {
-          setStatus('success');
-          setMessage('Email verified successfully! Redirecting to login...');
-          
+          setStatus("success");
+          setMessage("Email verified successfully! Redirecting to login...");
+
           // Redirect to login after 3 seconds
           setTimeout(() => {
-            navigate('/student-login', { 
-              state: { message: 'Email verified! You can now login.' } 
+            navigate("/student-login", {
+              state: { message: "Email verified! You can now login." },
             });
           }, 3000);
         } else {
-          setStatus('error');
-          setMessage(response.data.message || 'Verification failed. Please try again.');
+          setStatus("error");
+          setMessage(
+            response.data.message || "Verification failed. Please try again.",
+          );
         }
       } catch (error) {
-        console.error('Email verification error:', error);
-        setStatus('error');
-        
+        console.error("Email verification error:", error);
+        setStatus("error");
+
         if (error.response?.data?.message) {
           setMessage(error.response.data.message);
         } else if (error.response?.status === 400) {
-          setMessage('Invalid or expired verification token. Please request a new verification email.');
+          setMessage(
+            "Invalid or expired verification token. Please request a new verification email.",
+          );
         } else {
-          setMessage('Failed to verify email. Please try again later.');
+          setMessage("Failed to verify email. Please try again later.");
         }
       }
     };
@@ -54,12 +60,12 @@ const VerifyEmail = () => {
   }, [searchParams, navigate]);
 
   const handleBackToLogin = () => {
-    navigate('/student-login');
+    navigate("/student-login");
   };
 
   const handleResendVerification = () => {
-    navigate('/student-login', { 
-      state: { showResendVerification: true } 
+    navigate("/student-login", {
+      state: { showResendVerification: true },
     });
   };
 
@@ -79,21 +85,22 @@ const VerifyEmail = () => {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="mx-auto w-20 h-20 flex items-center justify-center rounded-full mb-6"
             style={{
-              background: status === 'success' 
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                : status === 'error'
-                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+              background:
+                status === "success"
+                  ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                  : status === "error"
+                    ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                    : "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
             }}
           >
-            {status === 'verifying' && (
+            {status === "verifying" && (
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 className="w-10 h-10 border-4 border-white border-t-transparent rounded-full"
               />
             )}
-            {status === 'success' && (
+            {status === "success" && (
               <motion.svg
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
@@ -111,7 +118,7 @@ const VerifyEmail = () => {
                 />
               </motion.svg>
             )}
-            {status === 'error' && (
+            {status === "error" && (
               <motion.svg
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -138,18 +145,19 @@ const VerifyEmail = () => {
             transition={{ delay: 0.4 }}
             className="text-2xl font-bold mb-4"
             style={{
-              background: status === 'success'
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                : status === 'error'
-                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              background:
+                status === "success"
+                  ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                  : status === "error"
+                    ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                    : "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
             }}
           >
-            {status === 'verifying' && 'Verifying Email'}
-            {status === 'success' && 'Email Verified!'}
-            {status === 'error' && 'Verification Failed'}
+            {status === "verifying" && "Verifying Email"}
+            {status === "success" && "Email Verified!"}
+            {status === "error" && "Verification Failed"}
           </motion.h2>
 
           {/* Message */}
@@ -163,19 +171,20 @@ const VerifyEmail = () => {
           </motion.p>
 
           {/* Buttons */}
-          {status !== 'verifying' && (
+          {status !== "verifying" && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
               className="space-y-3"
             >
-              {status === 'success' ? (
+              {status === "success" ? (
                 <button
                   onClick={handleBackToLogin}
                   className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 transform hover:scale-[1.02]"
                   style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    background:
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                   }}
                 >
                   Go to Login
@@ -186,7 +195,8 @@ const VerifyEmail = () => {
                     onClick={handleResendVerification}
                     className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 transform hover:scale-[1.02]"
                     style={{
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                      background:
+                        "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
                     }}
                   >
                     Resend Verification Email
@@ -203,7 +213,7 @@ const VerifyEmail = () => {
           )}
 
           {/* Auto-redirect countdown for success */}
-          {status === 'success' && (
+          {status === "success" && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

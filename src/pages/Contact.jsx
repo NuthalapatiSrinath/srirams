@@ -8,11 +8,14 @@ import {
   Sparkles,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { contactAPI } from "../api/contactAPI";
 import toast from "react-hot-toast";
 
 const Contact = () => {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,6 +27,19 @@ const Contact = () => {
 
   const [focusedField, setFocusedField] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Auto-fill form if user is logged in
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        center: user.centerName || "",
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
