@@ -355,10 +355,10 @@ const ModernTopbar = () => {
                     trackNavigation(
                       "Student Login",
                       "topbar",
-                      "/student-login",
+                      "/login",
                     );
                     trackButtonClick("student_login_button", "Student Login");
-                    navigate("/student-login");
+                    navigate("/login");
                   }}
                   className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
                     scrolled
@@ -553,7 +553,7 @@ const ModernTopbar = () => {
                 ) : (
                   <motion.button
                     onClick={() => {
-                      navigate("/student-login");
+                      navigate("/login");
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
