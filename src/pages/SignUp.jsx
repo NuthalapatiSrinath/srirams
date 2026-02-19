@@ -35,7 +35,7 @@ const SignUp = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Basic validation
@@ -44,7 +44,11 @@ const SignUp = () => {
       return;
     }
 
-    dispatch(registerUser(formData));
+    const result = await dispatch(registerUser(formData));
+    if (result.meta.requestStatus === "fulfilled") {
+      // Redirect to login after successful registration
+      setTimeout(() => navigate("/login"), 1500);
+    }
   };
 
   return (
