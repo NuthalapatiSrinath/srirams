@@ -246,12 +246,16 @@ const Register = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
                 >
-                  <Link
-                    to="/login"
-                    className="text-purple-600 hover:text-purple-700 font-semibold underline"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate("/login");
+                    }}
+                    className="text-purple-600 hover:text-purple-700 font-semibold underline transition-colors"
                   >
                     Go to Login Now →
-                  </Link>
+                  </button>
                 </motion.div>
               </motion.div>
             ) : (
@@ -465,12 +469,16 @@ const Register = () => {
                 <div className="text-center pt-4 border-t border-gray-200">
                   <p className="text-gray-600">
                     Already have an account?{" "}
-                    <Link
-                      to="/login"
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate("/login");
+                      }}
                       className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
                     >
                       Login Here
-                    </Link>
+                    </button>
                   </p>
                 </div>
               </form>

@@ -168,12 +168,16 @@ const ResetPassword = () => {
               </form>
 
               <div className="mt-6 text-center">
-                <Link
-                  to="/login"
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/login");
+                  }}
                   className="text-gray-400 hover:text-white transition-colors text-sm"
                 >
                   Back to Login
-                </Link>
+                </button>
               </div>
             </>
           ) : (

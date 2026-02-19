@@ -1,5 +1,6 @@
 // src/utils/activityTracker.js
 import { v4 as uuidv4 } from "uuid";
+import api from "../api/axiosInstance";
 
 /**
  * Session management
@@ -33,19 +34,44 @@ export const getDeviceInfo = () => {
 class ActivityQueue {
   constructor() {
     this.queue = [];
-    this.flushInterval = 10000; // Flush every 10 seconds
-    this.maxQueueSize = 20; // Or when queue reaches 20 items
+    this.flushInterval = 30000; // Flush every 30 seconds (backup only)
+    this.maxQueueSize = 50; // Or when queue reaches 50 items (backup only)
+    this.enableRealtimeTracking = true; // Send immediately for real-time updates
     this.startAutoFlush();
   }
 
   add(activity) {
-    this.queue.push({
+    const activityData = {
       ...activity,
       sessionId: getSessionId(),
       device: getDeviceInfo(),
       timestamp: new Date().toISOString(),
-    });
+    };
 
+    // Send immediately for real-time tracking
+    if (this.enableRealtimeTracking) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        api
+          .post("/user/activity/track", activityData)
+          .then(() => {
+            console.log(
+              `✅ Real-time activity tracked: ${activity.activityType}`,
+            );
+          })
+          .catch((error) => {
+            // If immediate send fails, add to queue for retry
+            if (error.response?.status !== 401) {
+              this.queue.push(activityData);
+            }
+          });
+      }
+    } else {
+      // Fallback: add to queue for batch processing
+      this.queue.push(activityData);
+    }
+
+    // Auto-flush if queue gets too large (backup mechanism)
     if (this.queue.length >= this.maxQueueSize) {
       this.flush();
     }
@@ -54,28 +80,36 @@ class ActivityQueue {
   async flush() {
     if (this.queue.length === 0) return;
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.log("⚠️ No token found - skipping activity tracking");
+      this.queue = []; // Clear queue if not authenticated
+      return;
+    }
+
     const activities = [...this.queue];
     this.queue = [];
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return; // Don't track if not authenticated
-
-      await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/user/activity/batch`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ activities }),
-        },
-      );
+      console.log(`📤 Flushing ${activities.length} activities to backend...`);
+      // Use axios instance which handles token refresh automatically
+      const response = await api.post("/user/activity/batch", { activities });
+      console.log(`✅ Tracked ${activities.length} activities successfully`);
+      return response;
     } catch (error) {
-      console.error("Failed to flush activities:", error);
-      // Put failed activities back in queue for retry
-      this.queue = [...activities, ...this.queue];
+      console.error(
+        "❌ Failed to flush activities:",
+        error.response?.status,
+        error.response?.data || error.message,
+      );
+      // Don't retry on auth errors (user will be redirected to login by axios interceptor)
+      if (error.response?.status !== 401 && error.response?.status !== 403) {
+        // Put failed activities back in queue for retry (only for network errors, not auth)
+        console.log("↩️ Re-queuing failed activities for retry");
+        this.queue = [...activities, ...this.queue];
+      } else {
+        console.log("🚫 Auth error - not re-queuing activities");
+      }
     }
   }
 
@@ -84,20 +118,11 @@ class ActivityQueue {
       this.flush();
     }, this.flushInterval);
 
-    // Flush on page unload
+    // Flush on page unload - Force flush with axios
     window.addEventListener("beforeunload", () => {
       if (this.queue.length > 0) {
-        // Use sendBeacon for reliable sending on page unload
-        const token = localStorage.getItem("token");
-        if (token) {
-          const blob = new Blob([JSON.stringify({ activities: this.queue })], {
-            type: "application/json",
-          });
-          navigator.sendBeacon(
-            `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/user/activity/batch`,
-            blob,
-          );
-        }
+        // Synchronous flush before unload
+        this.flush();
       }
     });
   }
@@ -109,6 +134,14 @@ const activityQueue = new ActivityQueue();
  * Track page view
  */
 export const trackPageView = (pathname, title) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.warn("⚠️ Not tracking - user not logged in");
+    return;
+  }
+
+  console.log(`📊 Tracking page view: ${pathname}`);
+
   activityQueue.add({
     activityType: "page_view",
     page: {
@@ -375,6 +408,7 @@ export const trackTimeOnPage = (pathname, timeSpent) => {
       path: pathname,
       title: document.title,
     },
+    duration: timeSpent * 1000, // Convert seconds to milliseconds
     action: {
       metadata: { timeSpent }, // in seconds
     },

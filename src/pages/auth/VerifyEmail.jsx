@@ -30,7 +30,7 @@ const VerifyEmail = () => {
 
           // Redirect to login after 3 seconds
           setTimeout(() => {
-            navigate("/student-login", {
+            navigate("/login", {
               state: { message: "Email verified! You can now login." },
             });
           }, 3000);
@@ -60,11 +60,11 @@ const VerifyEmail = () => {
   }, [searchParams, navigate]);
 
   const handleBackToLogin = () => {
-    navigate("/student-login");
+    navigate("/login");
   };
 
   const handleResendVerification = () => {
-    navigate("/student-login", {
+    navigate("/login", {
       state: { showResendVerification: true },
     });
   };

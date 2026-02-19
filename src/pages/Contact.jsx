@@ -8,6 +8,7 @@ import {
   Sparkles,
   Loader2,
 } from "lucide-react";
+import { trackFormSubmit } from "../utils/activityTracker";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { contactAPI } from "../api/contactAPI";
@@ -60,6 +61,14 @@ const Contact = () => {
       };
 
       await contactAPI.submitContact(contactData);
+      
+      // Track contact form submission
+      trackFormSubmit("contact", {
+        formName: "Contact Form",
+        center: formData.center,
+        subject: formData.subject,
+      });
+      
       toast.success("Message sent successfully! We'll get back to you soon.");
       // Reset form
       setFormData({

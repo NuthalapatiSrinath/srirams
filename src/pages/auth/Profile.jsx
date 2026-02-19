@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User,
@@ -10,13 +11,17 @@ import {
   Loader2,
   CheckCircle,
   Shield,
+  Phone,
 } from "lucide-react";
 import { getProfile, changePassword } from "../../store/slices/authSlice";
 import toast from "react-hot-toast";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { user, isLoading } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const { user, isLoading, isAuthenticated } = useSelector(
+    (state) => state.auth,
+  );
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -29,9 +34,29 @@ const Profile = () => {
     confirmNewPassword: "",
   });
 
+  // Fetch profile data on mount
   useEffect(() => {
-    dispatch(getProfile());
-  }, [dispatch]);
+    console.log("📋 Profile: Component mounted");
+    console.log("👤 Profile: Current user from Redux:", user);
+    console.log("🔐 Profile: Is authenticated:", isAuthenticated);
+
+    // If we don't have user data, fetch it
+    if (!user) {
+      console.log("⚠️ Profile: No user data, fetching profile...");
+      dispatch(getProfile()).then((result) => {
+        if (result.type === "auth/getProfile/fulfilled") {
+          console.log(
+            "✅ Profile: Profile fetched successfully:",
+            result.payload.data,
+          );
+        } else {
+          console.error("❌ Profile: Failed to fetch profile:", result.payload);
+        }
+      });
+    } else {
+      console.log("✅ Profile: User data already available:", user);
+    }
+  }, [dispatch]); // Run only once on mount
 
   const handlePasswordChange = (e) => {
     setPasswordData({
@@ -43,22 +68,48 @@ const Profile = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmNewPassword
+    ) {
+      toast.error("All fields are required!");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters long!");
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmNewPassword) {
-      toast.error("Passwords do not match!");
+      toast.error("New passwords do not match!");
+      return;
+    }
+
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      toast.error("New password must be different from current password!");
       return;
     }
 
     setIsChangingPassword(true);
-    const result = await dispatch(changePassword(passwordData));
+    try {
+      const result = await dispatch(changePassword(passwordData));
 
-    if (result.type === "auth/changePassword/fulfilled") {
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmNewPassword: "",
-      });
+      if (result.type === "auth/changePassword/fulfilled") {
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmNewPassword: "",
+        });
+        toast.success("Password changed successfully!");
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+    } finally {
+      setIsChangingPassword(false);
     }
-    setIsChangingPassword(false);
   };
 
   return (
@@ -95,35 +146,63 @@ const Profile = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Full Name
                   </label>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <User className="w-5 h-5 text-gray-400" />
                     <span className="text-gray-800 font-medium">
                       {user?.name || "Not provided"}
                     </span>
                   </div>
-                </div>
+                </motion.div>
 
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address
                   </label>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <Mail className="w-5 h-5 text-gray-400" />
                     <span className="text-gray-800 font-medium">
                       {user?.email || "Not provided"}
                     </span>
                   </div>
-                </div>
+                </motion.div>
 
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <Phone className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-800 font-medium">
+                      {user?.phone || "Not provided"}
+                    </span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                >
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Account Status
                   </label>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     {user?.isVerified ? (
                       <>
                         <CheckCircle className="w-5 h-5 text-green-500" />
@@ -140,7 +219,7 @@ const Profile = () => {
                       </>
                     )}
                   </div>
-                </div>
+                </motion.div>
               </div>
             )}
           </motion.div>
@@ -161,7 +240,11 @@ const Profile = () => {
             </div>
 
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Current Password
                 </label>
@@ -171,14 +254,14 @@ const Profile = () => {
                     name="currentPassword"
                     value={passwordData.currentPassword}
                     onChange={handlePasswordChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all pr-12"
                     placeholder="Enter current password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     {showCurrentPassword ? (
                       <EyeOff size={20} />
@@ -187,9 +270,13 @@ const Profile = () => {
                     )}
                   </button>
                 </div>
-              </div>
+              </motion.div>
 
-              <div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   New Password
                 </label>
@@ -199,21 +286,28 @@ const Profile = () => {
                     name="newPassword"
                     value={passwordData.newPassword}
                     onChange={handlePasswordChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all pr-12"
                     placeholder="Enter new password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-              </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Password must be at least 8 characters long
+                </p>
+              </motion.div>
 
-              <div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Confirm New Password
                 </label>
@@ -223,14 +317,14 @@ const Profile = () => {
                     name="confirmNewPassword"
                     value={passwordData.confirmNewPassword}
                     onChange={handlePasswordChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all pr-12"
                     placeholder="Confirm new password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     {showConfirmPassword ? (
                       <EyeOff size={20} />
@@ -239,16 +333,21 @@ const Profile = () => {
                     )}
                   </button>
                 </div>
-              </div>
+              </motion.div>
 
               <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
                 type="submit"
-                disabled={isChangingPassword}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                whileHover={{ scale: isChangingPassword ? 1 : 1.02 }}
-                whileTap={{ scale: isChangingPassword ? 1 : 0.98 }}
+                disabled={isChangingPassword || isLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+                whileHover={{
+                  scale: isChangingPassword || isLoading ? 1 : 1.02,
+                }}
+                whileTap={{ scale: isChangingPassword || isLoading ? 1 : 0.98 }}
               >
-                {isChangingPassword ? (
+                {isChangingPassword || isLoading ? (
                   <>
                     <Loader2 className="animate-spin" size={20} />
                     Changing Password...

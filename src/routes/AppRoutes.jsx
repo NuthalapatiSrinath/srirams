@@ -34,20 +34,23 @@ import Portal from "../pages/Portal";
 import Contact from "../pages/Contact";
 
 // Auth Pages
+import NewLogin from "../pages/auth/NewLogin";
 import SignUp from "../pages/SignUp";
 import Register from "../pages/auth/Register";
-import NewLogin from "../pages/auth/NewLogin";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import VerifyEmail from "../pages/auth/VerifyEmail";
 import Profile from "../pages/auth/Profile";
 import Settings from "../pages/auth/Settings";
 
+// Auth Guard
+import AuthGuard from "../components/AuthGuard";
+
 // --- 1. DEFINE ROUTES & TITLES HERE ---
 export const appRoutes = [
   // Main Pages
   { path: "/", element: <Home />, title: "Sriram's IAS - Home" },
-  { path: "/student-login", element: <NewLogin />, title: "Student Login" },
+  { path: "/login", element: <NewLogin />, title: "Login" },
   {
     path: "/courses/:slug",
     element: <CourseDetail />,
@@ -138,24 +141,70 @@ export const appRoutes = [
 // --- 2. ROUTE COMPONENTS ---
 
 const AppRoutes = () => {
+  // Auth routes that should NOT have MainLayout (no header/footer)
+  const authRoutes = [
+    "/login",
+    "/signup",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+  ];
+
   return (
     <Routes>
-      {/* All Routes use MainLayout (Topbar + Footer) */}
+      {/* Auth Routes (No MainLayout - standalone pages) */}
+      <Route path="/login" element={<NewLogin />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+
+      {/* All Other Routes use MainLayout (Topbar + Footer) */}
       <Route path="/" element={<MainLayout />}>
         {/* Public Pages */}
         <Route index element={<Home />} />
         <Route path="courses/:slug" element={<CourseDetail />} />
 
         {/* Dashboard/Admin Pages */}
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route
+          path="dashboard"
+          element={
+            <AuthGuard>
+              <Dashboard />
+            </AuthGuard>
+          }
+        />
 
-        {/* Other Routes */}
+        {/* Profile & Settings (need auth but have layout) */}
+        <Route
+          path="profile"
+          element={
+            <AuthGuard>
+              <Profile />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            <AuthGuard>
+              <Settings />
+            </AuthGuard>
+          }
+        />
+
+        {/* Other Public Routes */}
         {appRoutes
           .filter(
             (route) =>
+              !authRoutes.includes(route.path) &&
               route.path !== "/" &&
               route.path !== "/courses/:slug" &&
-              route.path !== "/dashboard",
+              route.path !== "/dashboard" &&
+              route.path !== "/profile" &&
+              route.path !== "/settings",
           )
           .map((route, index) => (
             <Route

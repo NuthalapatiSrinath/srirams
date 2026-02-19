@@ -154,12 +154,16 @@ const NewLogin = () => {
                 />
                 <span className="text-slate-600">Remember me</span>
               </label>
-              <a
-                href="#"
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/forgot-password");
+                }}
+                className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
               >
                 Forgot Password?
-              </a>
+              </button>
             </div>
 
             {/* Error Message */}
@@ -204,12 +208,16 @@ const NewLogin = () => {
           >
             <p className="text-slate-600 text-sm">
               Don't have an account?{" "}
-              <a
-                href="/register"
-                className="text-indigo-600 hover:text-indigo-700 font-semibold"
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/signup");
+                }}
+                className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors"
               >
                 Sign Up
-              </a>
+              </button>
             </p>
           </motion.div>
 

@@ -209,12 +209,16 @@ const SignUp = () => {
                 <div className="text-center pt-4">
                   <p className="text-gray-600">
                     Already have an account?{" "}
-                    <Link
-                      to="/login"
-                      className="text-purple-600 hover:text-purple-700 font-semibold"
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate("/login");
+                      }}
+                      className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
                     >
                       Login Here
-                    </Link>
+                    </button>
                   </p>
                 </div>
               </form>

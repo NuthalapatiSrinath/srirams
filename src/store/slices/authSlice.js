@@ -12,9 +12,12 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
+      console.log("🔐 Attempting login for:", email);
       const response = await authAPI.login({ email, password });
-      return response.data;
+      console.log("✅ Login response:", response);
+      return response;
     } catch (error) {
+      console.error("❌ Login error:", error.response?.data || error.message);
       const message = error.response?.data?.message || "Login failed";
       return rejectWithValue(message);
     }
@@ -150,7 +153,10 @@ const authSlice = createSlice({
         state.token = action.payload.data.accessToken;
         // Store in localStorage
         if (action.payload.data.user) {
-          localStorage.setItem("user", JSON.stringify(action.payload.data.user));
+          localStorage.setItem(
+            "user",
+            JSON.stringify(action.payload.data.user),
+          );
         }
         localStorage.setItem("token", action.payload.data.accessToken);
         // Track successful login
