@@ -220,7 +220,7 @@ const ModernTopbar = () => {
                             navigate(item.path);
                           }
                         }}
-                        className={`group flex items-center gap-1.5 px-4 py-2 text-[15px] font-medium ${textColor} ${textHover} transition-all duration-200 relative`}
+                        className={`group flex items-center gap-1.5 px-4 py-2 text-sm font-light ${textColor} ${textHover} transition-all duration-200 relative`}
                       >
                         <span className="relative">
                           {item.label}
@@ -263,7 +263,7 @@ const ModernTopbar = () => {
                                     navigate(sub.path);
                                     setActiveDropdown(null);
                                   }}
-                                  className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-white/70 hover:text-white hover:bg-white/10"
+                                  className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-light transition-all duration-150 text-white/70 hover:text-white hover:bg-white/10"
                                 >
                                   {sub.name}
                                 </button>
@@ -290,7 +290,7 @@ const ModernTopbar = () => {
                         trackButtonClick("profile_button", "Profile");
                         navigate("/profile");
                       }}
-                      className={`group text-[15px] font-medium ${textColor} ${textHover} transition-colors px-2 py-1 relative`}
+                      className={`group text-sm font-light ${textColor} ${textHover} transition-colors px-2 py-1 relative`}
                     >
                       <span className="relative">
                         {user?.name || "Profile"}
@@ -299,7 +299,7 @@ const ModernTopbar = () => {
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-6 py-2.5 rounded-full text-[15px] font-bold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                      className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-6 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout
@@ -316,7 +316,7 @@ const ModernTopbar = () => {
                         );
                         navigate("/login");
                       }}
-                      className={`group text-[15px] font-medium ${textColor} ${textHover} transition-colors px-2 py-1 relative`}
+                      className={`group text-sm font-light ${textColor} ${textHover} transition-colors px-2 py-1 relative`}
                     >
                       <span className="relative">
                         Log in
@@ -329,7 +329,7 @@ const ModernTopbar = () => {
                         trackButtonClick("register_button", "Register");
                         navigate("/signup");
                       }}
-                      className="bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-7 py-2.5 rounded-full text-[15px] font-bold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                      className="bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-7 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
                     >
                       Register
                     </button>
@@ -387,7 +387,7 @@ const ModernTopbar = () => {
                         className="border-b border-white/5 last:border-0"
                       >
                         <button
-                          className="w-full flex items-center justify-between px-3 py-3 font-medium text-sm transition-colors text-white/80 hover:text-white"
+                          className="w-full flex items-center justify-between px-3 py-3 font-light text-sm transition-colors text-white/80 hover:text-white"
                           onClick={() => {
                             if (!item.hasDropdown && item.path) {
                               navigate(item.path);
@@ -427,7 +427,7 @@ const ModernTopbar = () => {
                                     setIsMobileMenuOpen(false);
                                     setActiveDropdown(null);
                                   }}
-                                  className="w-full text-left px-8 py-2.5 text-sm font-medium transition-colors text-white/60 hover:text-white"
+                                  className="w-full text-left px-8 py-2.5 text-sm font-light transition-colors text-white/60 hover:text-white"
                                 >
                                   {sub.name}
                                 </button>
@@ -471,7 +471,7 @@ const ModernTopbar = () => {
                             navigate("/login");
                             setIsMobileMenuOpen(false);
                           }}
-                          className="w-full bg-white/10 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                          className="w-full bg-white/10 text-white px-4 py-2.5 rounded-xl font-light text-sm flex items-center justify-center gap-2"
                         >
                           <LogIn className="w-4 h-4" />
                           Log in
@@ -481,7 +481,7 @@ const ModernTopbar = () => {
                             navigate("/signup");
                             setIsMobileMenuOpen(false);
                           }}
-                          className="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                          className="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2"
                         >
                           Register
                         </button>
