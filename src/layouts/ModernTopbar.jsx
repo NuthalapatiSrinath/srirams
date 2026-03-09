@@ -1,20 +1,16 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Search,
-  Phone,
-  Mail,
   Menu,
   X,
   ChevronDown,
-  GraduationCap,
   BookOpen,
   Users,
   Award,
+  GraduationCap,
   Calendar,
   MessageCircle,
   LogIn,
-  Sparkles,
   User,
   LogOut,
 } from "lucide-react";
@@ -26,45 +22,97 @@ import {
   trackNavigation,
   trackDropdown,
   trackButtonClick,
-  trackSearch,
   flushActivities,
 } from "../utils/activityTracker";
 
 const ModernTopbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [scrolled, setScrolled] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const handleLogout = async () => {
     trackButtonClick("logout_button", "Logout", { source: "topbar" });
-    await flushActivities(); // Ensure tracking is sent before logout
+    await flushActivities();
     dispatch(logout());
     toast.success("Logged out successfully");
     navigate("/");
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const topCourses = [
-    { icon: "🎓", text: "New Batch Starting Feb 2026" },
-    { icon: "🏆", text: "500+ Selections in UPSC 2025" },
-    { icon: "📚", text: "Free Test Series for New Students" },
-    { icon: "⭐", text: "Limited Seats - Enroll Now!" },
-  ];
+  /* ─── scroll-driven values ─── */
+  // ALL pages: start full-width transparent → shrinks into floating gradient capsule
+  // Optimized scroll distance for smooth, responsive transformation
+  const rawProgress = scrollY / 350; // 0-350px scroll range for balanced speed
+  const progress = Math.min(rawProgress, 1);
+  // Apply easing for more natural movement (ease-out curve)
+  const easedProgress = progress < 0.5 
+    ? 2 * progress * progress 
+    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+  // capsule style computed from progress with optimized easing
+  const capsuleStyle = useMemo(() => {
+    const bgAlpha = easedProgress * 0.92; // 0 → 0.92
+    const blur = easedProgress * 16; // 0 → 16px
+    const radius = easedProgress * 50; // 0 → 50px
+    const hMargin = easedProgress * 6; // 0% → 6% each side (dramatic shrinking)
+    const vMargin = easedProgress * 12; // 0 → 12px top gap
+    const shadowSpread = easedProgress * 40;
+    const shadowAlpha = easedProgress * 0.35; // Richer shadow
+
+    return {
+      background:
+        bgAlpha > 0.02
+          ? `linear-gradient(135deg, rgba(30, 27, 46, ${bgAlpha}), rgba(42, 36, 56, ${bgAlpha * 0.95}), rgba(55, 40, 60, ${bgAlpha * 0.9}))`
+          : "transparent",
+      backdropFilter: blur > 0.5 ? `blur(${blur}px)` : "none",
+      WebkitBackdropFilter: blur > 0.5 ? `blur(${blur}px)` : "none",
+      borderRadius: `${radius}px`,
+      marginLeft: `${hMargin}%`,
+      marginRight: `${hMargin}%`,
+      marginTop: `${vMargin}px`,
+      boxShadow:
+        easedProgress > 0.05
+          ? `0 ${8 * easedProgress}px ${shadowSpread}px rgba(0, 0, 0, ${shadowAlpha}), 
+             0 ${4 * easedProgress}px ${12 * easedProgress}px rgba(0, 0, 0, ${easedProgress * 0.2}),
+             0 ${2 * easedProgress}px ${6 * easedProgress}px rgba(0, 0, 0, ${easedProgress * 0.15})`
+          : "none",
+      willChange: scrollY < 360 ? "transform, opacity, box-shadow" : "auto",
+      transition: "background 0.3s ease-out, backdrop-filter 0.3s ease-out, border-radius 0.4s ease-out, margin 0.4s ease-out, box-shadow 0.35s ease-out",
+    };
+  }, [easedProgress, scrollY]);
+
+  // Gap between nav items shrinks as they come together with easing
+  const navGap = useMemo(() => {
+    // Start at 2rem, shrink to 0.5rem when scrolled (more dramatic pull together)
+    return `${2 - (easedProgress * 1.5)}rem`;
+  }, [easedProgress]);
+
+  const authGap = useMemo(() => {
+    // Start at 1.5rem, shrink to 0.5rem when scrolled
+    return `${1.5 - (easedProgress * 1)}rem`;
+  }, [easedProgress]);
+
+  const brandGap = useMemo(() => {
+    // Start at 0.75rem, shrink to 0.25rem when scrolled
+    return `${0.75 - (easedProgress * 0.5)}rem`;
+  }, [easedProgress]);
+
+  // Text stays white on dark gradient background
+  const textColor = "text-white/90";
+  const textHover = "hover:text-white";
+  const hoverBg = "hover:bg-white/10";
 
   const menuItems = [
     {
-      label: "COURSES",
+      label: "Courses",
       icon: BookOpen,
       hasDropdown: true,
       dropdown: [
@@ -75,7 +123,7 @@ const ModernTopbar = () => {
       ],
     },
     {
-      label: "ABOUT US",
+      label: "About Us",
       icon: Users,
       hasDropdown: true,
       dropdown: [
@@ -86,7 +134,7 @@ const ModernTopbar = () => {
       ],
     },
     {
-      label: "TEST SERIES",
+      label: "Test Series",
       icon: Award,
       hasDropdown: true,
       dropdown: [
@@ -96,7 +144,7 @@ const ModernTopbar = () => {
       ],
     },
     {
-      label: "RESOURCES",
+      label: "Resources",
       icon: GraduationCap,
       hasDropdown: true,
       dropdown: [
@@ -105,476 +153,348 @@ const ModernTopbar = () => {
         { name: "Study Materials", path: "/free-resources" },
       ],
     },
-  ];
-
-  const quickActions = [
-    { label: "Upcoming Batches", path: "/upcoming-batches", icon: Calendar },
-    { label: "Blog", path: "/blog", icon: BookOpen },
-    { label: "Contact Us", path: "/contact", icon: MessageCircle },
+    {
+      label: "Contact",
+      icon: MessageCircle,
+      hasDropdown: false,
+      path: "/contact",
+    },
   ];
 
   return (
-    <motion.header
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 backdrop-blur-lg shadow-2xl"
-          : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
-      }`}
-    >
-      {/* Top Announcement Bar */}
+    <>
+      {/* Fixed positioning wrapper */}
       <div
-        className={`${scrolled ? "hidden" : "block"} bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-gray-900 overflow-hidden py-0.5`}
+        className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
+        style={{ fontFamily: "Inter, system-ui, -apple-system, sans-serif" }}
       >
-        <motion.div
-          className="flex gap-16"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{
-            duration: 40,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        >
-          {[...topCourses, ...topCourses, ...topCourses].map((course, idx) => (
-            <div
-              key={idx}
-              className="flex items-center gap-2 whitespace-nowrap"
-            >
-              <span className="text-xl">{course.icon}</span>
-              <span className="text-sm font-bold tracking-wide">
-                {course.text}
-              </span>
-            </div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* Main Navigation */}
-      <div className={`${scrolled ? "text-gray-800" : "text-white"}`}>
-        <div className="container mx-auto px-4 lg:px-20 py-1">
-          <div className="flex items-center justify-between py-0">
-            {/* Logo - Very Large */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex-shrink-0 cursor-pointer mr-2 lg:mr-9 order-first lg:order-none"
-              onClick={() => {
-                trackNavigation("Logo", "topbar", "/");
-                navigate("/");
-              }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src="/SriramIAS.png"
-                  alt="Sriram's IAS"
-                  className="h-12 md:h-16 w-auto object-contain drop-shadow-lg"
-                />
+        {/* The capsule */}
+        <nav className="pointer-events-auto" style={capsuleStyle}>
+          <div 
+            className="flex items-center justify-between h-[58px] px-8 lg:px-12"
+          >
+              {/* ── Brand ── */}
+              <div
+                className="flex-shrink-0 cursor-pointer flex items-center"
+                style={{ gap: brandGap, transition: 'gap 0.35s ease-out' }}
+                onClick={() => {
+                  trackNavigation("Logo", "topbar", "/");
+                  navigate("/");
+                }}
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <GraduationCap
+                    className="w-6 h-6 text-zinc-900"
+                    strokeWidth={2.5}
+                  />
+                </div>
+                <span className="text-xl font-bold text-white tracking-tight">
+                  Sriram's IAS
+                </span>
               </div>
-            </motion.div>
 
-            {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-2 flex-1 justify-end">
-              {/* Menu Items */}
-              <div className="flex items-center gap-0.5">
+              {/* ── Desktop Navigation ── */}
+              <div 
+                className="hidden lg:flex items-center"
+                style={{ gap: navGap, transition: 'gap 0.35s ease-out' }}
+              >
                 {menuItems.map((item, idx) => {
-                  const IconComponent = item.icon;
+                  const Icon = item.icon;
                   return (
-                    <motion.div
+                    <div
                       key={idx}
                       className="relative"
-                      onHoverStart={() => {
+                      onMouseEnter={() => {
                         setActiveDropdown(idx);
                         trackDropdown(item.label, "open");
                       }}
-                      onHoverEnd={() => {
+                      onMouseLeave={() => {
                         setActiveDropdown(null);
                         trackDropdown(item.label, "close");
                       }}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + idx * 0.05 }}
                     >
-                      <motion.button
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs whitespace-nowrap transition-all text-white ${
-                          scrolled
-                            ? "hover:bg-white/20 backdrop-blur-sm"
-                            : "hover:bg-white/20 backdrop-blur-sm"
-                        }`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                      <button
+                        onClick={() => {
+                          if (!item.hasDropdown && item.path) {
+                            trackNavigation(item.label, "topbar", item.path);
+                            navigate(item.path);
+                          }
+                        }}
+                        className={`group flex items-center gap-1.5 px-4 py-2 text-[15px] font-medium ${textColor} ${textHover} transition-all duration-200 relative`}
                       >
-                        <IconComponent className="w-4 h-4" />
-                        <span>{item.label}</span>
+                        <span className="relative">
+                          {item.label}
+                          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white rounded-full group-hover:w-full transition-all duration-300"></span>
+                        </span>
                         {item.hasDropdown && (
-                          <motion.div
-                            animate={{
-                              rotate: activeDropdown === idx ? 180 : 0,
-                            }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <ChevronDown className="w-4 h-4" />
-                          </motion.div>
+                          <ChevronDown
+                            className={`w-3.5 h-3.5 opacity-60 transition-transform duration-200 ${
+                              activeDropdown === idx ? "rotate-180" : ""
+                            }`}
+                          />
                         )}
-                      </motion.button>
+                      </button>
 
-                      {/* Innovative Dropdown */}
+                      {/* Dropdown */}
                       <AnimatePresence>
                         {activeDropdown === idx && item.dropdown && (
                           <motion.div
-                            className="absolute top-full left-0 mt-3 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-2xl overflow-hidden min-w-[260px] border-2 border-transparent z-50"
-                            style={{
-                              background:
-                                "linear-gradient(white, white) padding-box, linear-gradient(135deg, #6366f1, #a855f7, #ec4899) border-box",
-                            }}
-                            initial={{ opacity: 0, y: -15, scale: 0.9 }}
+                            className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden min-w-[220px] border border-white/10`}
+                            initial={{ opacity: 0, y: -6, scale: 0.97 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -15, scale: 0.9 }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 25,
-                            }}
+                            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
                           >
-                            <div className="p-2">
-                              {item.dropdown.map((subItem, subIdx) => (
-                                <motion.button
+                            <div className="py-2 px-2">
+                              {item.dropdown.map((sub, subIdx) => (
+                                <button
                                   key={subIdx}
                                   onClick={() => {
                                     trackDropdown(
                                       item.label,
                                       "select",
-                                      subItem.name,
+                                      sub.name,
                                     );
                                     trackNavigation(
-                                      subItem.name,
+                                      sub.name,
                                       "dropdown",
-                                      subItem.path,
+                                      sub.path,
                                     );
-                                    navigate(subItem.path);
+                                    navigate(sub.path);
                                     setActiveDropdown(null);
                                   }}
-                                  className="w-full text-left group relative overflow-hidden px-4 py-3 rounded-lg text-gray-700 font-medium text-sm transition-all"
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: subIdx * 0.08 }}
+                                  className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-white/70 hover:text-white hover:bg-white/10"
                                 >
-                                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 transition-opacity" />
-                                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 transform -translate-x-full group-hover:translate-x-0 transition-transform" />
-                                  <span className="relative z-10 group-hover:text-purple-700 transition-colors">
-                                    {subItem.name}
-                                  </span>
-                                </motion.button>
+                                  {sub.name}
+                                </button>
                               ))}
                             </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
 
-              {/* Quick Actions */}
-              <div className="flex items-center gap-1">
-                {quickActions.map((action, idx) => {
-                  const IconComponent = action.icon;
-                  return (
-                    <motion.button
-                      key={idx}
-                      onClick={() => {
-                        trackNavigation(
-                          action.label,
-                          "quick_action",
-                          action.path,
-                        );
-                        trackButtonClick(
-                          `quick_action_${action.label}`,
-                          action.label,
-                        );
-                        navigate(action.path);
-                      }}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold text-xs whitespace-nowrap transition-all ${
-                        scrolled
-                          ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-                          : "bg-white/20 backdrop-blur-sm hover:bg-white/30"
-                      }`}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 + idx * 0.1 }}
-                    >
-                      <IconComponent className="w-4 h-4" />
-                      <span>{action.label}</span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Student Login / Profile */}
-              {isAuthenticated ? (
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    onClick={() => {
-                      trackNavigation("Profile", "topbar", "/profile");
-                      trackButtonClick("profile_button", "Profile");
-                      navigate("/profile");
-                    }}
-                    className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
-                      scrolled
-                        ? "bg-gradient-to-r from-blue-400 to-indigo-500 text-white hover:shadow-xl"
-                        : "bg-white text-blue-600 hover:bg-blue-50"
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <User className="w-4 h-4" />
-                    <span>{user?.name || "Profile"}</span>
-                  </motion.button>
-                  <motion.button
-                    onClick={handleLogout}
-                    className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
-                      scrolled
-                        ? "bg-gradient-to-r from-red-400 to-pink-500 text-white hover:shadow-xl"
-                        : "bg-white text-red-600 hover:bg-red-50"
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </motion.button>
-                </div>
-              ) : (
-                <motion.button
-                  onClick={() => {
-                    trackNavigation("Student Login", "topbar", "/login");
-                    trackButtonClick("student_login_button", "Student Login");
-                    navigate("/login");
-                  }}
-                  className={`flex items-center gap-1 px-4 py-1 rounded-full font-bold text-xs shadow-lg whitespace-nowrap transition-all ${
-                    scrolled
-                      ? "bg-gradient-to-r from-green-400 to-emerald-500 text-gray-900 hover:shadow-xl"
-                      : "bg-white text-blue-600 hover:bg-blue-50"
-                  }`}
-                  whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Student Login</span>
-                  <Sparkles className="w-4 h-4" />
-                </motion.button>
-              )}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <motion.button
-              className="lg:hidden p-2 rounded-lg text-white order-last"
-              onClick={() => {
-                const newState = !isMobileMenuOpen;
-                setIsMobileMenuOpen(newState);
-                trackButtonClick(
-                  "mobile_menu_toggle",
-                  newState ? "Open" : "Close",
-                  {
-                    menuState: newState ? "opened" : "closed",
-                  },
-                );
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-7 h-7" />
-              ) : (
-                <Menu className="w-7 h-7" />
-              )}
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Contact Bar - Desktop Only */}
-        <div
-          className={`hidden lg:block border-t ${scrolled ? "border-white/20" : "border-white/20"}`}
-        >
-          <div className="container mx-auto px-4 py-1">
-            <div className="flex items-center justify-between text-sm">
-              <motion.div
-                className="flex items-center gap-6"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+              {/* ── Right side: Auth ── */}
+              <div 
+                className="hidden lg:flex items-center flex-shrink-0"
+                style={{ gap: authGap, transition: 'gap 0.35s ease-out' }}
               >
-                <a
-                  href="tel:8686818384"
-                  className={`flex items-center gap-2 font-semibold transition-colors ${
-                    scrolled
-                      ? "text-white hover:text-blue-200"
-                      : "hover:text-blue-200"
-                  }`}
-                >
-                  <Phone className="w-4 h-4" />
-                  <span>8686818384/9963917712</span>
-                </a>
-                <a
-                  href="mailto:enquiry@sriramsias.com"
-                  className={`flex items-center gap-2 font-semibold transition-colors ${
-                    scrolled
-                      ? "text-white hover:text-blue-200"
-                      : "hover:text-blue-200"
-                  }`}
-                >
-                  <Mail className="w-4 h-4" />
-                  <span>enquiry@sriramsias.com</span>
-                </a>
-              </motion.div>
-
-              <motion.button
-                onClick={() => navigate("/contact")}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-6 py-0.5 rounded-full font-bold hover:shadow-lg transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                📞 Book FREE Mentorship
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            className="lg:hidden bg-white border-t border-gray-200"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="container mx-auto px-4 py-4 max-h-[70vh] overflow-y-auto">
-              {menuItems.map((item, idx) => {
-                const IconComponent = item.icon;
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="border-b border-gray-200 last:border-0"
-                  >
-                    <button
-                      className="w-full flex items-center justify-between px-4 py-3 text-gray-700 font-semibold text-left"
-                      onClick={() =>
-                        setActiveDropdown(activeDropdown === idx ? null : idx)
-                      }
-                    >
-                      <div className="flex items-center gap-3">
-                        <IconComponent className="w-5 h-5 text-purple-600" />
-                        <span>{item.label}</span>
-                      </div>
-                      {item.hasDropdown && (
-                        <motion.div
-                          animate={{ rotate: activeDropdown === idx ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-5 h-5" />
-                        </motion.div>
-                      )}
-                    </button>
-                    <AnimatePresence>
-                      {activeDropdown === idx && item.dropdown && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50"
-                        >
-                          {item.dropdown.map((subItem, subIdx) => (
-                            <motion.button
-                              key={subIdx}
-                              onClick={() => {
-                                navigate(subItem.path);
-                                setIsMobileMenuOpen(false);
-                                setActiveDropdown(null);
-                              }}
-                              className="w-full text-left px-8 py-3 text-gray-700 hover:text-purple-700 text-sm font-medium border-l-4 border-transparent hover:border-purple-500 hover:bg-white/50 transition-all"
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: subIdx * 0.03 }}
-                            >
-                              {subItem.name}
-                            </motion.button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
-
-              <div className="mt-4 space-y-2">
                 {isAuthenticated ? (
                   <>
-                    <motion.button
+                    <button
                       onClick={() => {
+                        trackNavigation("Profile", "topbar", "/profile");
+                        trackButtonClick("profile_button", "Profile");
                         navigate("/profile");
-                        setIsMobileMenuOpen(false);
                       }}
-                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-                      whileTap={{ scale: 0.98 }}
+                      className={`group text-[15px] font-medium ${textColor} ${textHover} transition-colors px-2 py-1 relative`}
                     >
-                      <User className="w-5 h-5" />
-                      {user?.name || "Profile"}
-                    </motion.button>
-                    <motion.button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-                      whileTap={{ scale: 0.98 }}
+                      <span className="relative">
+                        {user?.name || "Profile"}
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white rounded-full group-hover:w-full transition-all duration-300"></span>
+                      </span>
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-6 py-2.5 rounded-full text-[15px] font-bold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
                     >
-                      <LogOut className="w-5 h-5" />
+                      <LogOut className="w-4 h-4" />
                       Logout
-                    </motion.button>
+                    </button>
                   </>
                 ) : (
-                  <motion.button
-                    onClick={() => {
-                      navigate("/login");
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <LogIn className="w-5 h-5" />
-                    Student Login
-                  </motion.button>
+                  <>
+                    <button
+                      onClick={() => {
+                        trackNavigation("Student Login", "topbar", "/login");
+                        trackButtonClick(
+                          "student_login_button",
+                          "Student Login",
+                        );
+                        navigate("/login");
+                      }}
+                      className={`group text-[15px] font-medium ${textColor} ${textHover} transition-colors px-2 py-1 relative`}
+                    >
+                      <span className="relative">
+                        Log in
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white rounded-full group-hover:w-full transition-all duration-300"></span>
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        trackNavigation("Register", "topbar", "/signup");
+                        trackButtonClick("register_button", "Register");
+                        navigate("/signup");
+                      }}
+                      className="bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-7 py-2.5 rounded-full text-[15px] font-bold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                    >
+                      Register
+                    </button>
+                  </>
                 )}
-                <motion.button
-                  onClick={() => {
-                    navigate("/contact");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-4 py-3 rounded-lg font-bold"
-                  whileTap={{ scale: 0.98 }}
-                >
-                  📞 Book FREE Mentorship
-                </motion.button>
               </div>
+
+              {/* ── Mobile Menu Button ── */}
+              <button
+                className={`lg:hidden p-2 rounded-xl ${textColor} ${hoverBg} transition-colors`}
+                onClick={() => {
+                  const newState = !isMobileMenuOpen;
+                  setIsMobileMenuOpen(newState);
+                  trackButtonClick(
+                    "mobile_menu_toggle",
+                    newState ? "Open" : "Close",
+                    { menuState: newState ? "opened" : "closed" },
+                  );
+                }}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+
+          {/* ── Subtle bottom border line (visible when capsule is formed) ── */}
+          {progress > 0.3 && (
+            <div
+              className="mx-6 h-px"
+              style={{
+                background: `linear-gradient(90deg, transparent, rgba(255,255,255,${0.08 * progress}), transparent)`,
+              }}
+            />
+          )}
+
+          {/* ── Mobile Menu ── */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div
+                className="lg:hidden border-t border-white/10"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="max-h-[70vh] overflow-y-auto px-5 py-3">
+                  {menuItems.map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={idx}
+                        className="border-b border-white/5 last:border-0"
+                      >
+                        <button
+                          className="w-full flex items-center justify-between px-3 py-3 font-medium text-sm transition-colors text-white/80 hover:text-white"
+                          onClick={() => {
+                            if (!item.hasDropdown && item.path) {
+                              navigate(item.path);
+                              setIsMobileMenuOpen(false);
+                            } else {
+                              setActiveDropdown(
+                                activeDropdown === idx ? null : idx,
+                              );
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="w-4 h-4 text-amber-400" />
+                            <span>{item.label}</span>
+                          </div>
+                          {item.hasDropdown && (
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 text-white/40 ${
+                                activeDropdown === idx ? "rotate-180" : ""
+                              }`}
+                            />
+                          )}
+                        </button>
+                        <AnimatePresence>
+                          {activeDropdown === idx && item.dropdown && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="bg-white/5 rounded-xl mb-1"
+                            >
+                              {item.dropdown.map((sub, subIdx) => (
+                                <button
+                                  key={subIdx}
+                                  onClick={() => {
+                                    navigate(sub.path);
+                                    setIsMobileMenuOpen(false);
+                                    setActiveDropdown(null);
+                                  }}
+                                  className="w-full text-left px-8 py-2.5 text-sm font-medium transition-colors text-white/60 hover:text-white"
+                                >
+                                  {sub.name}
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+
+                  {/* Mobile Auth */}
+                  <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
+                    {isAuthenticated ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            navigate("/profile");
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full bg-white/10 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                        >
+                          <User className="w-4 h-4" />
+                          {user?.name || "Profile"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full bg-red-500/20 text-red-300 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            navigate("/login");
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full bg-white/10 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                        >
+                          <LogIn className="w-4 h-4" />
+                          Log in
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate("/signup");
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-900 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                        >
+                          Register
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </nav>
+      </div>
+    </>
   );
 };
 
